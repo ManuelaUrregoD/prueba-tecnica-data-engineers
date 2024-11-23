@@ -1,6 +1,8 @@
 import requests
 import json
 from datetime import datetime, timedelta
+import pandas as pd
+import os
 
 def get_series_data(date):
     url = f"http://api.tvmaze.com/schedule/web?date={date}"
@@ -30,5 +32,14 @@ def fetch_tv_shows_data():
 
     return all_data
 
-if __name__ == "__main__":
-    fetch_tv_shows_data()   
+def load_json_to_pandas_dataframe(json_folder="../json/"):
+    all_files = [os.path.join(json_folder, file) for file in os.listdir(json_folder) if file.endswith(".json")]
+    all_data = []
+    for file in all_files:
+        with open(file, 'r') as f:
+            data = json.load(f)
+            all_data.extend(data)
+    
+    df = pd.json_normalize(all_data)
+    return df
+
