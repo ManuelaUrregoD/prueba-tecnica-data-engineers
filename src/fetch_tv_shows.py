@@ -26,7 +26,7 @@ def fetch_tv_shows_data():
     ]
 
     for i in range((end_date - start_date).days + 1):
-        date = (start_date + timedelta(days=i)).strftime('%Y-%m-%d')
+        date = (start_dλate + timedelta(days=i)).strftime('%Y-%m-%d')
         daily_data = get_series_data(date)
         with open(f"../json/data_{date}.json", "w") as file:
             json.dump(daily_data, file, indent=4)
@@ -48,3 +48,58 @@ def profile_data(df):
     profile = ProfileReport(df, title="Profiling a datos del 1 de enero del 2024")
     profile.to_file("../profiling/data_profiling.html")
     
+      
+    
+def clean_data(df):
+    
+    #1. Eliminar columnas con más del 85% de valores faltantes y columnas con datos no soportados e irrelevantes. 
+    columns_to_drop = [
+        'rating.average', '_embedded.show.network', '_embedded.show.dvdCountry', '_embedded.show.externals.tvrage', 
+        'image', '_embedded.show.image', '_embedded.show.network.officialSite', '_embedded.show.webChannel', 
+        '_embedded.show.webChannel.country', '_embedded.show.dvdCountry.name', '_embedded.show.dvdCountry.code', 
+        '_embedded.show.dvdCountry.timezone', '_embedded.show.image', '_embedded.show.network', 'image'
+    ]
+    df_clean = df.drop(columns=columns_to_drop, errors='ignore')
+    
+    
+    # 2. Eliminación de valores atípicos 
+    df_clean = df_clean[df_clean['season'] != 2024]
+
+
+    # 3. Transformar columnas con datos no compatibles
+    columns_to_transform = ['_embedded.show.genres', '_embedded.show.dvdPaís', '_embedded.show.schedule.days']
+    for column in columns_to_transform:
+        if column in df_clean.columns:
+            df_clean[column] = df_clean[column].apply(lambda x: ', '.join(x) if isinstance(x, list) else '')
+            
+     # 4. Eliminar filas con más del 80% de valores faltantes
+    df_clean = df_clean.dropna(thresh=len(df_clean.columns) * 0.8)
+    
+
+    # 5. Rellenar valores faltantes relevantes
+    columns_to_fill_median = ['runtime', 'rating.average', '_embedded.show.averageRuntime']
+    for column in columns_to_fill_median:
+        if column in df_clean.columns:
+            df_clean[column] = df_clean[column].fillna(df_clean[column].median())
+    
+    
+    # 6. Eliminar duplicados
+    df_clean = df_clean.drop_duplicates()
+    
+    # 7. Transformar columnas categóricas altamente desequilibradas
+    if 'type' in df_clean.columns:
+        type_counts = df_clean['type'].value_counts()
+        df_clean['type'] = df_clean['type'].apply(lambda x: x if type_counts[x] > 10 else 'Other')
+    
+    # 8. Convertir columnas categóricas a valores numéricos
+    categorical_columns = ['_embedded.show.language', '_embedded.show.type']
+    for column in categorical_columns:
+        if column in df_clean.columns:
+            df_clean = pd.get_dummies(df_clean, columns=[column])
+
+     # 9. Eliminar columnas altamente correlacionadas
+    columns_to_drop_correlated = ['_embedded.show.network.country.name', '_embedded.show.network.country.code']
+    df_clean = df_clean.drop(columns=columns_to_drop_correlated, errors='ignore')
+
+    return df_clean
+
