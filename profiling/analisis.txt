@@ -1,0 +1,25 @@
+Resultado del análisis del profile  de datos - Mes de enero. 
+
+1. Valores faltantes:
+
+La columnas ating.average, _embedded.show.network, _embedded.show.dvdCountry, embedded.show.externals.tvrage, image, _embedded.show.image, _embedded.show.network.officialSite,_embedded.show.webChannel,_embedded.show.webChannel.country, 
+_embedded.show.dvdCountry.name, _embedded.show.dvdCountry.code, _embedded.show.dvdCountry.timezone tienne más del 80% de valores faltantes, han sido eliminadas para simplificar el análisis.
+
+
+2. Eliminación de valores atipicos. 
+
+- Para la columna season se elimina el valor atípico 2024, debido a que se puede evidenciar que los demás valores van del 1 al 25. 
+
+
+3. Columnas con datos no soportados. 
+
+- _embedded.show.dvdPaís
+- imagen
+- _embedded.show.image
+- _embedded.show.webChannel
+- _embedded.show.webChannel.country
+- _embedded.show.genres
+- _embedded.show.schedule.days
+- _embedded.show.network
+
+Tienen datos no soportados, se encuentran importantes las columnas de:  _embedded.show.dvdPaís,  _embedded.show.genres y - _embedded.show.schedule.days por lo que las demás se eliminar y estas se transforman. 
