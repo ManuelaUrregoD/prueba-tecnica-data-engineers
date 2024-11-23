@@ -3668,14 +3668,14 @@
                     "original": "https://static.tvmaze.com/uploads/images/original_untouched/23/59454.jpg"
                 },
                 "summary": "<p><b>Simon's Cat</b> is an animated series featuring the mischievous and often hilarious antics of a fat white cat and his owner Simon.</p>",
-                "updated": 1731833823,
+                "updated": 1732380595,
                 "_links": {
                     "self": {
                         "href": "https://api.tvmaze.com/shows/6141"
                     },
                     "previousepisode": {
-                        "href": "https://api.tvmaze.com/episodes/3057863",
-                        "name": "Cats After Dark - Caturday Film Club"
+                        "href": "https://api.tvmaze.com/episodes/3065576",
+                        "name": "Happy Thanksgiving!"
                     }
                 }
             }

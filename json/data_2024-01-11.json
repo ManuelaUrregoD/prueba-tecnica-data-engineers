@@ -15297,12 +15297,12 @@
                         "href": "https://api.tvmaze.com/shows/16753"
                     },
                     "previousepisode": {
-                        "href": "https://api.tvmaze.com/episodes/2739741",
-                        "name": "Main Event 631"
-                    },
-                    "nextepisode": {
                         "href": "https://api.tvmaze.com/episodes/2739742",
                         "name": "Main Event 632"
+                    },
+                    "nextepisode": {
+                        "href": "https://api.tvmaze.com/episodes/2739743",
+                        "name": "Main Event 633"
                     }
                 }
             }
@@ -17623,7 +17623,7 @@
                 "rating": {
                     "average": null
                 },
-                "weight": 55,
+                "weight": 54,
                 "network": null,
                 "webChannel": {
                     "id": 11,
