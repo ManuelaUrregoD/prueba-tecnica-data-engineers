@@ -6887,10 +6887,6 @@
                         "href": "https://api.tvmaze.com/shows/39398"
                     },
                     "previousepisode": {
-                        "href": "https://api.tvmaze.com/episodes/3040300",
-                        "name": "Rescuing Marlene"
-                    },
-                    "nextepisode": {
                         "href": "https://api.tvmaze.com/episodes/3046549",
                         "name": "The Elusive Pups"
                     }
