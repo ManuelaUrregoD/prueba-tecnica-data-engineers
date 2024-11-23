@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 from ydata_profiling import ProfileReport
 import pandas as pd
+import sqlite3
 import os
 
 def get_series_data(date):
@@ -102,4 +103,83 @@ def clean_data(df):
     df_clean = df_clean.drop(columns=columns_to_drop_correlated, errors='ignore')
 
     return df_clean
+
+
+def save_dataframe_to_parquet(df, file_path="../data/shows.parquet"):
+    df.to_parquet(file_path, compression='snappy')
+    
+    
+
+def insert_data_to_db(df_clean, db_name="tv_shows.db"):
+    
+   # Obtener la ruta del archivo de la base de datos desde un directorio atrás
+    db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "db", db_name))
+
+    # Conectar a la base de datos
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Insertar datos en la tabla Shows
+    for _, row in df_clean.iterrows():
+        try:
+            # Insertar datos en Shows
+            cursor.execute('''
+                INSERT OR IGNORE INTO Shows (
+                    id, url, name, genres, status, runtime, averageRuntime, premiered, ended, 
+                    officialSite, schedule_time, schedule_days, rating_average, weight, 
+                    webChannel_id, externals_thetvdb, externals_imdb, summary, updated, language, type
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                row.get('_embedded.show.id'), row.get('_embedded.show.url'), row.get('_embedded.show.name'),
+                row.get('_embedded.show.genres'), row.get('_embedded.show.status'), row.get('_embedded.show.runtime'),
+                row.get('_embedded.show.averageRuntime'), row.get('_embedded.show.premiered'), row.get('_embedded.show.ended'),
+                row.get('_embedded.show.officialSite'), row.get('_embedded.show.schedule.time'), row.get('_embedded.show.schedule.days'),
+                row.get('_embedded.show.rating.average'), row.get('_embedded.show.weight'), row.get('_embedded.show.webChannel.id'),
+                row.get('_embedded.show.externals.thetvdb'), row.get('_embedded.show.externals.imdb'), row.get('_embedded.show.summary'),
+                row.get('_embedded.show.updated'), row.get('_embedded.show.language'), row.get('_embedded.show.type')
+            ))
+            
+            # Insertar datos en Episodes
+            cursor.execute('''
+                INSERT OR IGNORE INTO Episodes (
+                    id, show_id, url, name, season, number, type, airdate, airtime, 
+                    airstamp, runtime, summary, image_medium, image_original
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                row.get('id'), row.get('show.id'), row.get('url'), row.get('name'),
+                row.get('season'), row.get('number'), row.get('type'), row.get('airdate'),
+                row.get('airtime'), row.get('airstamp'), row.get('runtime'), row.get('summary'),
+                row.get('image.medium'), row.get('image.original')
+            ))
+
+            # Insertar datos en Networks
+            cursor.execute('''
+                INSERT OR IGNORE INTO Networks (
+                    id, name, country_name, country_code, country_timezone
+                ) VALUES (?, ?, ?, ?, ?)
+            ''', (
+                row.get('_embedded.show.network.id'), row.get('_embedded.show.network.name'),
+                row.get('_embedded.show.network.country.name'), row.get('_embedded.show.network.country.code'),
+                row.get('_embedded.show.network.country.timezone')
+            ))
+            
+            # Insertar datos en WebChannels
+            cursor.execute('''
+                INSERT OR IGNORE INTO WebChannels (
+                    id, network_id, name, country_name, country_code, country_timezone, officialSite
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                row.get('_embedded.show.webChannel.id'), row.get('_embedded.show.network.id'),
+                row.get('_embedded.show.webChannel.name'), row.get('_embedded.show.webChannel.country.name'),
+                row.get('_embedded.show.webChannel.country.code'), row.get('_embedded.show.webChannel.country.timezone'),
+                row.get('_embedded.show.webChannel.officialSite')
+            ))
+        
+        except sqlite3.Error as e:
+            print(f"Error al insertar los datos: {e}")
+
+    # Confirmar los cambios y cerrar la conexión
+    conn.commit()
+    conn.close()
+
 
