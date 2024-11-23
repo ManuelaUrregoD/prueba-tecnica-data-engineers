@@ -1,6 +1,7 @@
 import requests
 import json
 from datetime import datetime, timedelta
+from ydata_profiling import ProfileReport
 import pandas as pd
 import os
 
@@ -43,3 +44,7 @@ def load_json_to_pandas_dataframe(json_folder="../json/"):
     df = pd.json_normalize(all_data)
     return df
 
+def profile_data(df):
+    profile = ProfileReport(df, title="Profiling a datos del 1 de enero del 2024")
+    profile.to_file("../profiling/data_profiling.html")
+    
